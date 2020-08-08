@@ -1,19 +1,19 @@
 {
-    "name":"default",
-    "type":"postgres",
-    "host":"localhost",
-    "port":5432,
-    "username":"postgres",
-    "password":"docker",
-    "database":"taks",
-    "entities": [
-        "./src/modules/Database/entities/*.ts"
-    ],
-    "migrations":[
-        "./src/modules/Database/migrations/*.ts"
-    ],
-    "cli":{
-        "migrationsDir":"./src/modules/Database/migrations"
-    }
-
+  "type": "postgres",
+  "host": "127.0.0.1",
+  "port": 5432,
+  "username": "postgres",
+  "password": "docker",
+  "database": "tasks",
+  "entities": [
+    "src/modules/Database/entities/*.ts"
+  ],
+  "migrationsTableName": "migrations",
+  "migrations": [
+    "src/modules/Database/migrations/*.ts"
+  ],
+  "cli": {
+    "migrationsDir": "src/modules/Database/migrations"
+  },
+  "ssl": false
 }
