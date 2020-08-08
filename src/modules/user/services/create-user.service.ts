@@ -1,7 +1,9 @@
-import { IUsersRepository } from '../repositories/IUsersRepository';
+import { Injectable } from '@nestjs/common';
+import { User } from '../../database/entities/User';
 import { ICreateUserDTO } from '../dtos/ICreateUserDTO';
-import { User } from '../../Database/entities/User';
+import { IUsersRepository } from '../repositories/IUsersRepository';
 
+@Injectable()
 export class CreateUserService {
   constructor(private usersRepository: IUsersRepository) {}
 
