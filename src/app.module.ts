@@ -1,12 +1,18 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { CreateUserService } from './modules/user/services/create-user.service';
-import { UserController } from './modules/user/controllers/users.controller';
+import { RouterModule } from 'nest-router';
+// import { AppController } from './app.controller';
+// import { AppService } from './app.service';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController, UserController],
-  providers: [AppService, CreateUserService],
+  imports: [
+    RouterModule.forRoutes([
+      {
+        path: '/a',
+        module: UserModule,
+      },
+    ]),
+    UserModule,
+  ],
 })
 export class AppModule {}
