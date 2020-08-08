@@ -3,8 +3,7 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 require('dotenv').config();
 
 class ConfigService {
-
-  constructor(private env: { [k: string]: string | undefined }) { }
+  constructor(private env: { [k: string]: string | undefined }) {}
 
   private getValue(key: string, throwOnMissing = true): string {
     const value = this.env[key];
@@ -26,7 +25,7 @@ class ConfigService {
 
   public isProduction() {
     const mode = this.getValue('MODE', false);
-    return mode != 'DEV';
+    return mode !== 'DEV';
   }
 
   public getTypeOrmConfig(): TypeOrmModuleOptions {
@@ -34,6 +33,7 @@ class ConfigService {
       type: 'postgres',
 
       host: this.getValue('POSTGRES_HOST'),
+      // eslint-disable-next-line radix
       port: parseInt(this.getValue('POSTGRES_PORT')),
       username: this.getValue('POSTGRES_USER'),
       password: this.getValue('POSTGRES_PASSWORD'),
@@ -52,16 +52,14 @@ class ConfigService {
       ssl: this.isProduction(),
     };
   }
-
 }
 
-const configService = new ConfigService(process.env)
-  .ensureValues([
-    'POSTGRES_HOST',
-    'POSTGRES_PORT',
-    'POSTGRES_USER',
-    'POSTGRES_PASSWORD',
-    'POSTGRES_DATABASE'
-  ]);
+const configService = new ConfigService(process.env).ensureValues([
+  'POSTGRES_HOST',
+  'POSTGRES_PORT',
+  'POSTGRES_USER',
+  'POSTGRES_PASSWORD',
+  'POSTGRES_DATABASE',
+]);
 
 export { configService };
