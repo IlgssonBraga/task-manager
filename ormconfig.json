@@ -6,7 +6,7 @@
   "password": "docker",
   "database": "tasks",
   "entities": [
-    "src/modules/Database/entities/*.ts"
+    "dist/src/modules/database/entities/*.js"
   ],
   "migrationsTableName": "migrations",
   "migrations": [

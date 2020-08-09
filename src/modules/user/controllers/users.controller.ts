@@ -1,27 +1,31 @@
-import { Controller, /* Post , */ /* Body, */ Get } from '@nestjs/common';
-import { CreateUserService } from '../services/create-user.service';
-// import { ICreateUserDTO } from '../dtos/ICreateUserDTO';
-// import { User } from '../../database/entities/User';
+import { Controller, Post, Body, Get } from '@nestjs/common';
+import { UserService } from '../services/user.service';
+import { User } from '../../database/entities/User';
+
+export interface Request {
+  name: string;
+  email: string;
+  password: string;
+}
 
 @Controller('users')
 export class UserController {
-  constructor(private createUserService: CreateUserService) {}
+  constructor(private createUserService: UserService) {}
 
-  // @Post()
-  // async create(
-  //   @Body() { name, email, password }: ICreateUserDTO,
-  // ): Promise<User> {
-  //   const user = await this.createUserService.execute({
-  //     name,
-  //     email,
-  //     password,
-  //   });
+  @Post()
+  async create(@Body() { name, email, password }: Request): Promise<User> {
+    const user = await this.createUserService.createUser({
+      name,
+      email,
+      password,
+    });
 
-  //   return user;
-  // }
+    return user;
+  }
 
   @Get()
-  async index(): Promise<string> {
-    return 'hella';
+  async index(): Promise<User[]> {
+    const user = await this.createUserService.findAll();
+    return user;
   }
 }
