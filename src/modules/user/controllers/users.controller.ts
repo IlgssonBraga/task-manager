@@ -19,11 +19,17 @@ export interface Request {
 
 @Controller('users')
 export class UserController {
-  constructor(private createUserService: UserService) {}
+  constructor(private userService: UserService) {}
 
   @Post()
   async create(@Body() { name, email, password }: Request): Promise<User> {
-    const user = await this.createUserService.createUser({
+    const checkEmail = await this.userService.findUserByEmail(email);
+
+    if (checkEmail) {
+      throw new Error('E-mail already exists!');
+    }
+
+    const user = await this.userService.createUser({
       name,
       email,
       password,
@@ -34,13 +40,18 @@ export class UserController {
 
   @Get()
   async index(): Promise<User[]> {
-    const user = await this.createUserService.findAll();
+    const user = await this.userService.findAll();
     return user;
   }
 
   @Get('/:id')
   async show(@Param() id: string): Promise<User> {
-    const user = await this.createUserService.findOne(id);
+    const user = await this.userService.findOne(id);
+
+    if (!user) {
+      throw new Error('User not found!');
+    }
+
     return user;
   }
 
@@ -49,7 +60,13 @@ export class UserController {
     @Param() id: 'uuid',
     @Body() { name, email, password }: Request,
   ): Promise<User> {
-    const user = await this.createUserService.updateUser(id, {
+    const checkUser = await this.userService.findOne(id);
+
+    if (!checkUser) {
+      throw new Error('User not found!');
+    }
+
+    const user = await this.userService.updateUser(id, {
       name,
       email,
       password,
@@ -61,6 +78,11 @@ export class UserController {
   @Delete('/:id')
   @HttpCode(204)
   async delete(@Param() id: string): Promise<void> {
-    await this.createUserService.deleteUser(id);
+    const checkUser = await this.userService.findOne(id);
+
+    if (!checkUser) {
+      throw new Error('User not found!');
+    }
+    await this.userService.deleteUser(id);
   }
 }
