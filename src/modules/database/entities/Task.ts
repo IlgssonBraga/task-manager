@@ -4,21 +4,33 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { User } from './User';
 
-@Entity('Users')
-export class User {
+@Entity('Tasks')
+export class Task {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
-  name: string;
+  title: string;
+
+  @ManyToOne(_ => User, {
+    eager: true,
+  })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
   @Column()
-  email: string;
+  user_id: 'uuid';
 
   @Column()
-  password: string;
+  description: string;
+
+  @Column()
+  status: string;
 
   @CreateDateColumn()
   created_at: Date;

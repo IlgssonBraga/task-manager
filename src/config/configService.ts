@@ -44,10 +44,10 @@ class ConfigService {
 
       migrationsTableName: 'migrations',
 
-      migrations: ['src/modules/Database/migrations/*.ts'],
+      migrations: ['src/modules/database/migrations/*.ts'],
 
       cli: {
-        migrationsDir: 'src/modules/Database/migrations',
+        migrationsDir: 'src/modules/database/migrations',
       },
 
       ssl: this.isProduction(),
