@@ -1,6 +1,8 @@
 import { Injectable, Request } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { hash } from 'bcryptjs';
+import { classToClass } from 'class-transformer';
 import { User } from '../../database/entities/User';
 
 export interface Request {
@@ -17,27 +19,33 @@ export class UserService {
 
   async findAll(): Promise<User[]> {
     const users = await this.userRepository.find();
-    return users;
+    return classToClass(users);
   }
 
   async findOne(id: string): Promise<User> {
     const user = await this.userRepository.findOne(id);
 
-    return user;
+    return classToClass(user);
   }
 
   async findUserByEmail(email: string): Promise<User> {
     const user = await this.userRepository.findOne({ email });
 
-    return user;
+    return classToClass(user);
   }
 
   async createUser({ name, email, password }: Request): Promise<User> {
-    const user = this.userRepository.create({ name, email, password });
+    const passwordHash = await hash(password, 8);
+
+    const user = this.userRepository.create({
+      name,
+      email,
+      password: passwordHash,
+    });
 
     await this.userRepository.save(user);
 
-    return user;
+    return classToClass(user);
   }
 
   async updateUser(
@@ -49,7 +57,7 @@ export class UserService {
       Object.assign(user, { name, email, password });
       await this.userRepository.update(id, user);
       const userUpdated = await this.userRepository.findOne(id);
-      return userUpdated;
+      return classToClass(userUpdated);
     } catch (error) {
       throw new Error(error.message);
     }
