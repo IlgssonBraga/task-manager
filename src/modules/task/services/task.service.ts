@@ -20,6 +20,10 @@ export class TaskService {
     const tasks = await this.taskRepository.find({
       where: { user_id: req.user.id },
     });
+
+    // eslint-disable-next-line no-param-reassign
+    tasks.map(task => delete task.user.password);
+
     return tasks;
   }
 
@@ -36,6 +40,9 @@ export class TaskService {
         HttpStatus.FORBIDDEN,
       );
     }
+
+    delete task.user.password;
+
     return task;
   }
 
@@ -53,6 +60,8 @@ export class TaskService {
     });
 
     await this.taskRepository.save(task);
+
+    // delete task.user.password;
 
     return task;
   }
@@ -82,6 +91,8 @@ export class TaskService {
     await this.taskRepository.update(id, task2);
 
     const taskUpdated = await this.taskRepository.findOne(id);
+
+    delete taskUpdated.user.password;
 
     return taskUpdated;
   }
