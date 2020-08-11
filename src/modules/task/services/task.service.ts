@@ -1,11 +1,11 @@
-import { Injectable, Request } from '@nestjs/common';
+import { Injectable, Request, HttpException, HttpStatus } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from '../../database/entities/Task';
 
 export interface Request {
   title: string;
-  user_id: 'uuid';
+  user_id?: 'uuid';
   status: string;
   description: string;
 }
@@ -26,8 +26,15 @@ export class TaskService {
   async findOneTask(id: string, req: any): Promise<Task> {
     const task = await this.taskRepository.findOne(id);
 
+    if (!task) {
+      throw new HttpException('Task not found!', HttpStatus.NOT_FOUND);
+    }
+
     if (task.user_id !== req.user.id) {
-      throw new Error('You cant access this task!');
+      throw new HttpException(
+        'You cant access this task!',
+        HttpStatus.FORBIDDEN,
+      );
     }
     return task;
   }
@@ -52,20 +59,47 @@ export class TaskService {
 
   async updateTask(
     id: string,
-    { title, user_id, status, description }: Request,
+    { title, status, description }: Request,
+    req: any,
   ): Promise<Task> {
-    try {
-      const task = new Task();
-      Object.assign(task, { title, user_id, status, description });
-      await this.taskRepository.update(id, task);
-      const taskUpdated = await this.taskRepository.findOne(id);
-      return taskUpdated;
-    } catch (error) {
-      throw new Error(error.message);
+    const task = await this.taskRepository.findOne(id);
+
+    if (!task) {
+      throw new HttpException('Task not found!', HttpStatus.NOT_FOUND);
     }
+
+    if (task.user_id !== req.user.id) {
+      throw new HttpException(
+        'You cant access this task!',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const task2 = new Task();
+
+    Object.assign(task2, { title, status, description });
+
+    await this.taskRepository.update(id, task2);
+
+    const taskUpdated = await this.taskRepository.findOne(id);
+
+    return taskUpdated;
   }
 
-  async deleteTask(id: 'uuid'): Promise<void> {
+  async deleteTask(id: 'uuid', req: any): Promise<void> {
+    const checkTask = await this.taskRepository.findOne(id);
+
+    if (!checkTask) {
+      throw new HttpException('Task not found!', HttpStatus.NOT_FOUND);
+    }
+
+    if (checkTask.user_id !== req.user.id) {
+      throw new HttpException(
+        'You cant access this task!',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     await this.taskRepository.delete(id);
   }
 }
