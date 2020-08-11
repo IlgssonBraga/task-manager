@@ -7,9 +7,11 @@ import {
   Put,
   Delete,
   HttpCode,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { User } from '../../database/entities/User';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 
 export interface Request {
   name: string;
@@ -38,12 +40,14 @@ export class UserController {
     return user;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   async index(): Promise<User[]> {
     const user = await this.userService.findAll();
     return user;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('/:id')
   async show(@Param() id: string): Promise<User> {
     const user = await this.userService.findOne(id);
@@ -55,6 +59,7 @@ export class UserController {
     return user;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put('/:id')
   async update(
     @Param() id: 'uuid',
@@ -75,6 +80,7 @@ export class UserController {
     return user;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete('/:id')
   @HttpCode(204)
   async delete(@Param() id: string): Promise<void> {
