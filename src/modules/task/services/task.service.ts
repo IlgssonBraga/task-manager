@@ -16,14 +16,19 @@ export class TaskService {
     @InjectRepository(Task) private taskRepository: Repository<Task>,
   ) {}
 
-  async findAllTasks(): Promise<Task[]> {
-    const tasks = await this.taskRepository.find();
+  async findAllTasks(req: any): Promise<Task[]> {
+    const tasks = await this.taskRepository.find({
+      where: { user_id: req.user.id },
+    });
     return tasks;
   }
 
-  async findOneTask(id: string): Promise<Task> {
+  async findOneTask(id: string, req: any): Promise<Task> {
     const task = await this.taskRepository.findOne(id);
 
+    if (task.user_id !== req.user.id) {
+      throw new Error('You cant access this task!');
+    }
     return task;
   }
 

@@ -8,6 +8,7 @@ import {
   Delete,
   HttpCode,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { TaskService } from '../services/task.service';
 import { Task } from '../../database/entities/Task';
@@ -27,11 +28,12 @@ export class TaskController {
   @UseGuards(JwtAuthGuard)
   @Post()
   async create(
-    @Body() { title, user_id, status, description }: Request,
+    @Body() { title, status, description }: Request,
+    @Req() req: any,
   ): Promise<Task> {
     const user = await this.taskService.createTask({
       title,
-      user_id,
+      user_id: req.user.id,
       status,
       description,
     });
@@ -40,15 +42,16 @@ export class TaskController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async index(): Promise<Task[]> {
-    const tasks = await this.taskService.findAllTasks();
+  async index(@Req() req: any): Promise<Task[]> {
+    console.log(req.user.id);
+    const tasks = await this.taskService.findAllTasks(req);
     return tasks;
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('/:id')
-  async show(@Param() id: string): Promise<Task> {
-    const task = await this.taskService.findOneTask(id);
+  async show(@Param() id: string, @Req() req: any): Promise<Task> {
+    const task = await this.taskService.findOneTask(id, req);
 
     if (!task) {
       throw new Error('Task not found!');
@@ -62,8 +65,9 @@ export class TaskController {
   async update(
     @Param() id: 'uuid',
     @Body() { title, user_id, status, description }: Request,
+    @Req() req: any,
   ): Promise<Task> {
-    const checkTask = await this.taskService.findOneTask(id);
+    const checkTask = await this.taskService.findOneTask(id, req);
 
     if (!checkTask) {
       throw new Error('Task not found!');
@@ -82,11 +86,11 @@ export class TaskController {
   @UseGuards(JwtAuthGuard)
   @Delete('/:id')
   @HttpCode(204)
-  async delete(@Param() id: 'uuid'): Promise<void> {
-    const checkUser = await this.taskService.findOneTask(id);
+  async delete(@Param() id: 'uuid', @Req() req: any): Promise<void> {
+    const checkTask = await this.taskService.findOneTask(id, req);
 
-    if (!checkUser) {
-      throw new Error('User not found!');
+    if (!checkTask) {
+      throw new Error('Task not found!');
     }
     await this.taskService.deleteTask(id);
   }
